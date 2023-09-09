@@ -85,9 +85,11 @@ public class PlayerController : MonoBehaviour
         horizontal = Map(viewport.x, 0, 1f, 0, 1f);
 
 
-        if (Math.Abs(playerView.transform.position.x) < MaxCameraPos.x)
+        if (playerView.transform.position.x < MaxCameraPos.x)
         {
             playerView.transform.position += new Vector3(horizontal * CameraSpeed * Time.unscaledDeltaTime, 0, 0);
+        } else if (playerView.transform.position.x > -MaxCameraPos.x) {
+            playerView.transform.position += new Vector3(-horizontal * CameraSpeed * Time.unscaledDeltaTime, 0, 0);
         }
 
         //Debug.Log(vertical);
