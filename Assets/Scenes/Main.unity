@@ -254,9 +254,12 @@ MonoBehaviour:
   playerView: {fileID: 963194227}
   MovingSpeed: 5
   JumpHeight: 3
-  CameraSpeed: 2
-  MaxCameraPos: {x: 20, y: 5, z: 5}
+  _mouseSensitivity: 1.5
+  maxCameraDistanse: 15
+  minCameraDistanse: 3
+  _rotationXMinMax: {x: -20, y: 20}
   ScrollStep: 0.5
+  _smoothTime: 0.2
 --- !u!136 &551466239
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -450,6 +453,7 @@ GameObject:
   m_Component:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
+  - component: {fileID: 963194229}
   - component: {fileID: 963194226}
   m_Layer: 0
   m_Name: Main Camera
@@ -532,6 +536,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 551466242}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &963194229
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eee881bce54365c459b9de6b687f4de1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &984473958
 GameObject:
   m_ObjectHideFlags: 0

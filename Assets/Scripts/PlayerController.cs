@@ -6,7 +6,11 @@ public class PlayerController : MonoBehaviour
 {
     private Rigidbody rig;
     private bool isGrounded = false;
-    private Vector3 viewport;
+    private Vector3 _currentRotation;
+    private Vector3 _smoothVelocity = Vector3.zero;
+    private float _rotationY;
+    private float _rotationX;
+    private float _distanceFromTarget = 5f;
 
     [Header("Children compomponents")]
     public Camera playerView;
@@ -16,10 +20,15 @@ public class PlayerController : MonoBehaviour
     public float JumpHeight = 3f;
 
 
+
     [Header("Camera Props")]
-    public float CameraSpeed = 5f;
-    public Vector3 MaxCameraPos = new Vector3(5f, 5f, 5f);
+    public float _mouseSensitivity = 1.5f;
+    public float maxCameraDistanse = 10f;
+    public float minCameraDistanse = 3f;
+    public Vector2 _rotationXMinMax = new Vector2(-20, 20);
     public float ScrollStep = 0.5f;
+    public float _smoothTime = 0.2f;
+
 
     private void Awake()
     {
@@ -37,10 +46,6 @@ public class PlayerController : MonoBehaviour
         {
             Jump();
         }
-
-        viewport = Camera.main.ScreenToViewportPoint(Input.mousePosition);
-
-        //Debug.Log(string.Format("x viewport: {0}; y viewport: {1}", viewport.x, viewport.y));
 
         playerView.transform.LookAt(gameObject.transform, Vector3.up);
 
@@ -61,39 +66,36 @@ public class PlayerController : MonoBehaviour
         rig.AddForce(Vector3.up * JumpVelocity, ForceMode.Impulse);
         isGrounded = false;
     }
-    private float Map(float x, float in_min, float in_max, float out_min, float out_max)
-    {
-        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-    }
 
     private void MoveCamera()
     {
-        float vertical;
-        float horizontal;
+        float mouseX = Input.GetAxis("Mouse X") * _mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * _mouseSensitivity;
 
-        float value;
+        _rotationY += mouseX;
+        _rotationX += mouseY;
 
-        //if (viewport.x < 0.5) value = Map(viewport.x, -1f, 1f, 0, 1f);
-        //else horizontal = Map(viewport.x * 2, 0, 1f, -1f, 1f);
+        // Apply clamping for x rotation
+        _rotationX = Math.Clamp(_rotationX, _rotationXMinMax.x, _rotationXMinMax.y);
 
-        //if (viewport.y < 0.5) vertical = -viewport.y;
-        //else vertical = viewport.y;
+        Vector3 nextRotation = new Vector3(_rotationX, _rotationY);
 
-        //value = Map(viewport.x, -1f, 1f, -1f, 1f);
+        // Apply damping between rotation changes
+        _currentRotation = Vector3.SmoothDamp(_currentRotation, nextRotation, ref _smoothVelocity, _smoothTime);
+        playerView.transform.localEulerAngles = _currentRotation;
 
-
-        horizontal = Map(viewport.x, 0, 1f, 0, 1f);
-
-
-        if (playerView.transform.position.x < MaxCameraPos.x)
+        if (Input.mouseScrollDelta.y == -1f && _distanceFromTarget > minCameraDistanse)
         {
-            playerView.transform.position += new Vector3(horizontal * CameraSpeed * Time.unscaledDeltaTime, 0, 0);
-        } else if (playerView.transform.position.x > -MaxCameraPos.x) {
-            playerView.transform.position += new Vector3(-horizontal * CameraSpeed * Time.unscaledDeltaTime, 0, 0);
+            _distanceFromTarget -= ScrollStep;
+        }
+        if (Input.mouseScrollDelta.y == 1f && _distanceFromTarget < maxCameraDistanse)
+        {
+            _distanceFromTarget += ScrollStep;
         }
 
-        //Debug.Log(vertical);
-        Debug.Log(horizontal);
+        // Substract forward vector of the GameObject to point its forward vector to the target
+        playerView.transform.position = gameObject.transform.position - playerView.transform.forward * _distanceFromTarget;
+
     }
 
 }
